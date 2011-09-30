@@ -12,7 +12,6 @@ module VWorkApp
     include HTTParty
 
     base_uri 'api.vworkapp.com/api/2.0'
-    # base_uri 'api.vworkapp.com/api/2.0'
     format :xml
 
     headers HEADERS
