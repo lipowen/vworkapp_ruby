@@ -13,7 +13,7 @@ module MultiXml
     case value
     when Hash
       if value['type'] == 'array'
-        _, entries = value.detect { |k, v| k != 'type' && v.is_a?(Array) }
+        _, entries = value.detect { |k, v| k != 'type' && (v.is_a?(Array) || v.is_a?(Hash)) }
 
         if entries.nil? || (entries.is_a?(String) && entries.strip.empty?)
           []

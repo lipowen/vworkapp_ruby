@@ -12,18 +12,18 @@ module VWorkApp
       @api_key
     end
   end
-  
-  HEADERS = {
-    "User-Agent"    => "Ruby.vWorkApp.API",
-  }
-    
+      
   class Base
+
     include HTTParty
 
     base_uri 'api.vworkapp.com/api/2.0'
-    format :xml
+    # http_proxy 'localhost', 8888
+    # format :xml
 
-    headers HEADERS
+    headers({
+      "User-Agent" => "Ruby.vWorkApp.API"
+    })
 
     # Examines a bad response and raises an approriate exception
     #

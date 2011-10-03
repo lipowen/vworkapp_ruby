@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.authors     = ["vWorkApp Inc.", "Aish Fenton"]
   s.email       = ["info@vworkapp.com"]
   s.homepage    = "http://api.vworkapp.com/api/"
-  s.description = %q{Simple interface to vWorkApp's api}
+  s.summary     = %q{Simple interface to vWorkApp's api}
   s.description = %q{Simple interface to vWorkApp's api}
 
   s.required_rubygems_version = ">= 1.3.6"

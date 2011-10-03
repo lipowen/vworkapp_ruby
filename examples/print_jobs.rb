@@ -6,9 +6,9 @@
 
 $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib') unless $LOAD_PATH.include?(File.dirname(__FILE__) + '/../lib')
 require "rubygems"
-require "vworkapp"
+require "vworkapp_ruby"
 
-VWorkApp::Job.api_key = "AtuogECLCV2R7uT-fkPg"
+VWorkApp.api_key = "AtuogECLCV2R7uT-fkPg"
 
 # MultiXml.parser = :rexml
 # p MultiXml.parser
@@ -21,14 +21,10 @@ EOL
 workers = VWorkApp::Worker.all
 
 workers.each do |worker|
-  puts "Worker: #{worker["name"]}"
-  jobs = VWorkApp::Job.find(:worker_id => worker["id"], :state => "not_started")
+  puts "Worker: #{worker.name}"
+  jobs = VWorkApp::Job.find(:worker_id => worker.id, :state => "not_started")
   jobs.each do |job|
-    puts "\t #{job["id"]}, #{job["customer_name"]}, #{job["template_name"]}"
+    puts "\t #{job.third_party_id || job.id}, #{job.customer_name}, #{job.template_name}"
   end
-  puts "" 
+  puts ""
 end
-
-# p jobs = VWorkApp::Job.find(:worker_id => 4228)["cars"]
-
-# p job = VWorkApp::Job.show(180022)
