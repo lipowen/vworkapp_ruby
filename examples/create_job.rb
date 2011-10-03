@@ -6,12 +6,12 @@
 
 $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib') unless $LOAD_PATH.include?(File.dirname(__FILE__) + '/../lib')
 require "rubygems"
-require "vworkapp"
+require "vworkapp_ruby"
 
 MIN = 60
 HOUR = 60 * MIN
 
-VWorkApp::Job.api_key = "AtuogECLCV2R7uT-fkPg"
+VWorkApp.api_key = "AtuogECLCV2R7uT-fkPg"
 
 puts <<-EOL
 ----------------------------
@@ -20,12 +20,12 @@ puts <<-EOL
 EOL
 
 job = VWorkApp::Job.new(
-  "CUSTOMER !", 
-  "MY TEMPLATE",
+  "ACME Inc.", 
+  "Standard Booking",
   10 * HOUR,
   [
-    VWorkApp::Step.new("Start", VWorkApp::Location.new("880 Harrison St!", 37.779536, -122.401503)),
-    VWorkApp::Step.new("End", VWorkApp::Location.new("880 Harrison St!", 37.779536, -122.401503)),
+    VWorkApp::Step.new("End", VWorkApp::Location.from_address("201 1st Street, SF", :us)),
+    VWorkApp::Step.new("Start", VWorkApp::Location.new("880 Harrison St!", 37.779536, -122.401503))
   ],
   [
     VWorkApp::CustomField.new("Note", "Hi There!"),

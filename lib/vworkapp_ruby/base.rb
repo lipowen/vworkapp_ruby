@@ -2,12 +2,21 @@ require 'httparty'
 
 module VWorkApp
   
+  class << self
+    @api_key = "YOU NEED TO SPECIFY YOUR API KEY!!"
+
+    def api_key=(key)
+      @api_key = key
+    end
+    def api_key
+      @api_key
+    end
+  end
+  
   HEADERS = {
     "User-Agent"    => "Ruby.vWorkApp.API",
-    # "Accept"        => "application/xml",
-    # "Content-Type"  => "application/xml"
   }
-
+    
   class Base
     include HTTParty
 
@@ -24,18 +33,6 @@ module VWorkApp
         raise ResponseError, response
       end
       raise StandardError, "Unkown error"
-    end
-
-    def self.api_key=(api_key)
-      @@api_key = api_key
-    end
-    
-    def self.api_key
-      @@api_key
-    end
-    
-    def api_key
-      @@api_key
     end
 
   end

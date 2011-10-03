@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = ">= 1.3.6"
 
   s.add_dependency "httparty"
+  s.add_dependency "gcoder"
   s.add_development_dependency "rspec"
 
   s.files              = `git ls-files`.split("\n") rescue ''
