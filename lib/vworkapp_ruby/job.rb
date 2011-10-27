@@ -71,7 +71,8 @@ module VWorkApp
 
   class Job < Base
     
-    attr_accessor :id, :customer_name, :template_name, :planned_duration, :steps, :custom_fields, :third_party_id, :assigned_to, :planned_start_at
+    attr_accessor :id, :customer_name, :template_name, :planned_duration, :steps, :custom_fields, :third_party_id
+    attr_accessor :assigned_to_id, :planned_start_at, :progress_state
 
     ##
     # Creates a new jobs in vWorkApp.
@@ -86,7 +87,7 @@ module VWorkApp
       @steps = steps
       @custom_fields = custom_fields 
       @third_party_id = third_party_id
-      @assigned_to = assigned_to
+      @assigned_to_id = assigned_to.id if assigned_to
       @planned_start_at = planned_start_at
     end
         
@@ -109,12 +110,15 @@ module VWorkApp
     end
 
     def self.from_hash(attributes)
-      j = Job.new(attributes["customer_name"], attributes["template_name"], attributes["planned_duration"], 
-                  attributes["steps"].map { |h| Step.from_hash(h) }, nil, attributes["id"], attributes["third_party_id"], 
-                  nil, attributes["planned_start_at"]
-      )
-      j.custom_fields = attributes["custom_fields"].map { |h| CustomField.from_hash(h) } if attributes["custom_fields"]
-      j
+      job = Job.new(attributes["customer_name"], attributes["template_name"], attributes["planned_duration"], 
+                  attributes["steps"].map { |h| Step.from_hash(h) }, nil, attributes["id"], attributes["third_party_id"])      
+      job.custom_fields = attributes["custom_fields"].map { |h| CustomField.from_hash(h) } if attributes["custom_fields"]
+      
+      job.assigned_to_id = attributes["worker_id"]
+      job.planned_start_at = attributes["planned_start_at"]
+      job.progress_state = attributes["progress_state"]
+      
+      job
     end
     
     def create
@@ -160,8 +164,13 @@ module VWorkApp
       raw = get("/jobs/#{id}.xml", :query => { :api_key => VWorkApp.api_key })
       Job.from_hash(raw["job"])
     end
-    
+        
     def self.delete(id)      
+    end
+    
+    def assigned_to
+      return nil if @assigned_to_id.nil?
+      @assigned_to ||= Worker.show(self.assigned_to_id)
     end
         
   end

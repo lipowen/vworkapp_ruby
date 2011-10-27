@@ -11,11 +11,7 @@ module VWorkApp
     end
     
     def self.from_hash(attributes)
-      @lat = attributes["lat"]
-      @lng = attributes["lng"]
-      @recorded_at = attributes["recorded_at"]
-      @heading = attributes["heading"]
-      @speed = attributes["speed"]
+      Telemetry.new(attributes["lat"], attributes["lng"], attributes["recorded_at"], attributes["heading"], attributes["speed"])
     end
     
   end
@@ -36,14 +32,19 @@ module VWorkApp
     end
 
     def self.find
-      raw = get("/workers.xml", :query => { :api_key => VWorkApp.api_key })["workers"]
-      raw.map { |h| Worker.from_hash(h) }
+      raw = get("/workers.xml", :query => { :api_key => VWorkApp.api_key })
+      raw["workers"].map { |h| Worker.from_hash(h) }
     end
     
     def self.from_hash(attributes)
-      w = Worker.new(attributes["name"], attributes["email"], attributes["id"], attributes["third_party_id"])
-      w.latest_telemetry = Telemetry.from_hash(attributes["latest_telemetry"]) if attributes["latest_telemetry"]
-      w
+      worker = Worker.new(attributes["name"], attributes["email"], attributes["id"], attributes["third_party_id"])
+      worker.latest_telemetry = Telemetry.from_hash(attributes["latest_telemetry"]) if attributes["latest_telemetry"]
+      worker
+    end
+
+    def self.show(id)
+      raw = get("/workers/#{id}.xml", :query => { :api_key => VWorkApp.api_key })
+      Worker.from_hash(raw["worker"])
     end
     
   end

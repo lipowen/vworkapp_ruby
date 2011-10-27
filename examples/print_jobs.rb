@@ -21,10 +21,11 @@ EOL
 workers = VWorkApp::Worker.all
 
 workers.each do |worker|
-  puts "Worker: #{worker.name}"
+  puts "Worker: #{worker.id}-#{worker.name}}"
   jobs = VWorkApp::Job.find(:worker_id => worker.id, :state => "not_started")
   jobs.each do |job|
     puts "\t #{job.third_party_id || job.id}, #{job.customer_name}, #{job.template_name}"
+    # p job
   end
   puts ""
 end
