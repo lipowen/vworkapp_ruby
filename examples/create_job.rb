@@ -31,4 +31,4 @@ job = VWorkApp::Job.new(
     VWorkApp::CustomField.new("Note", "Hi There!"),
   ]
 )
-p job.create
+puts "Created Job, id is: #{job.create.id}"

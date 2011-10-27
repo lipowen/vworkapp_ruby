@@ -119,7 +119,12 @@ module VWorkApp
     
     def create
       res = self.class.post("/jobs", :body => self.to_hash, :query => { :api_key => VWorkApp.api_key })
-      res.success? ? res : self.class.bad_response(res)
+      if res.success?
+        self.id = res["job"]["id"]
+        self 
+      else
+        self.class.bad_response(res)
+      end
     end
 
     def update(id, attributes)
