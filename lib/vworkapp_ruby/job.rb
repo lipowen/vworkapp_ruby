@@ -109,7 +109,10 @@ module VWorkApp
     end
 
     def self.from_hash(attributes)
-      j = Job.new(attributes["customer_name"], attributes["template_name"], attributes["planned_duration"], attributes["steps"].map { |h| Step.from_hash(h) }, nil, attributes["id"], attributes["third_party_id"])
+      j = Job.new(attributes["customer_name"], attributes["template_name"], attributes["planned_duration"], 
+                  attributes["steps"].map { |h| Step.from_hash(h) }, nil, attributes["id"], attributes["third_party_id"], 
+                  nil, attributes["planned_start_at"]
+      )
       j.custom_fields = attributes["custom_fields"].map { |h| CustomField.from_hash(h) } if attributes["custom_fields"]
       j
     end
@@ -149,11 +152,11 @@ module VWorkApp
     end
 
     def self.show(id)
-      get("/jobs/#{id}.xml", :query => { :api_key => VWorkApp.api_key })
+      raw = get("/jobs/#{id}.xml", :query => { :api_key => VWorkApp.api_key })
+      Job.from_hash(raw["job"])
     end
     
-    def self.delete(id)
-      
+    def self.delete(id)      
     end
         
   end
