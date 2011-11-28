@@ -160,9 +160,16 @@ module VWorkApp
       raw["jobs"].map { |h| Job.from_hash(h) }
     end
 
-    def self.show(id)
-      raw = get("/jobs/#{id}.xml", :query => { :api_key => VWorkApp.api_key })
-      Job.from_hash(raw["job"])
+    def self.show(id, use_third_party_id = false)
+      raw = get("/jobs/#{id}.xml", :query => { :api_key => VWorkApp.api_key, :use_third_party_id => use_third_party_id })
+      case res
+      when Net::HTTPOK
+        Job.from_hash(raw["job"])
+      when Net::HTTPNotFound
+         nil
+      else
+        bad_response(res)
+      end
     end
         
     def self.delete(id)      
