@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "vworkapp_ruby"
-  s.version     = "0.0.1"
+  s.version     = "0.1.0"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["vWorkApp Inc.", "Aish Fenton"]
   s.email       = ["info@vworkapp.com"]
@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency "httparty"
   s.add_dependency "gcoder"
+
   s.add_development_dependency "rspec"
 
   s.files              = `git ls-files`.split("\n") rescue ''

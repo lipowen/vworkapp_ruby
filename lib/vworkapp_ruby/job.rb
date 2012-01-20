@@ -2,99 +2,26 @@ require 'gcoder'
 
 module VWorkApp
 
-  class Location
-    attr_accessor :formatted_address, :lat, :lng
-    def initialize(formatted_address, lat, lng)
-      @formatted_address = formatted_address
-      @lat = lat
-      @lng = lng
-    end
-    
-    def self.from_address(address, region = :us)
-      loc = Location.geocode(address, region).first.geometry.location
-      self.new(address, loc.lat, loc.lng)
-    end
-    
-    def to_hash
-      { :formatted_address => formatted_address, :lat => lat, :lng => lng }
-    end
-    
-    def self.from_hash(attributes)
-      return nil unless attributes
-      Location.new(attributes["formatted_address"], attributes["lat"], attributes["lng"])
-    end
-    
-  private
-
-    def self.geocode(address, region)
-      @gecoder ||= GCoder.connect(:storage => :heap)
-      @gecoder[address, { :region => region }]
-    end
-
-  end
-
-  class Step
-    attr_accessor :name, :location
-    def initialize(name, location = nil)
-      @name = name
-      @location = location
-    end
-
-    def to_hash
-      h = { :name => name }
-      h.merge!({ :location => location.to_hash }) if location  
-      h
-    end
-    
-    def self.from_hash(attributes)
-      Step.new(attributes["name"], Location.from_hash(attributes["location"]))
-    end
-    
-  end
-
-  class CustomField
-    attr_accessor :name, :value
-    def initialize(name, value)
-      @name = name
-      @value = value
-    end
-
-    def to_hash
-      { :name => name.to_s, :value => value.to_s }
-    end
-    
-    def self.from_hash(attributes)
-      CustomField.new(attributes["name"], attributes["value"])
-    end
-    
-  end
-
   class Job < Base
-    
     attr_accessor :id, :customer_name, :template_name, :planned_duration, :steps, :custom_fields, :third_party_id
     attr_accessor :assigned_to_id, :planned_start_at, :progress_state
 
-    ##
-    # Creates a new jobs in vWorkApp.
-    # 
-    # Steps and Custom_Fields takes an array of these.
-    # 
-    def initialize(customer_name, template_name, planned_duration, steps, custom_fields = nil, id = nil, third_party_id = nil, assigned_to = nil, planned_start_at = nil)
+    #---------------
+    # Object Methods
+    #---------------
+
+    def initialize(customer_name, template_name, planned_duration, steps, custom_fields = nil, id = nil, third_party_id = nil, assigned_to_id = nil, planned_start_at = nil)
       @id = id
       @customer_name = customer_name
-      @template_name = template_name 
+      @template_name = template_name
       @planned_duration = planned_duration 
       @steps = steps
       @custom_fields = custom_fields 
       @third_party_id = third_party_id
-      @assigned_to_id = assigned_to.id if assigned_to
+      @assigned_to_id = assigned_to_id
       @planned_start_at = planned_start_at
     end
-        
-    def is_new?
-      self.id == nil
-    end
-    
+            
     def to_hash
       job_hash = {
         :job => {
@@ -121,14 +48,38 @@ module VWorkApp
       job
     end
     
+    def is_new?
+      self.id == nil
+    end
+
+    def assigned_to
+      return nil if @assigned_to_id.nil?
+      @assigned_to ||= Worker.show(self.assigned_to_id)
+    end
+
+    def ==(other)
+      attributes_eql?(other, [
+        :id, :third_party_id, :customer_name, :template_name, :planned_duration, :planned_start_at, 
+        :assigned_to_id, :steps, :custom_fields
+      ])
+    end
+
+    #---------------
+    # REST Methods
+    #---------------
+
     def create
-      res = self.class.post("/jobs", :body => self.to_hash, :query => { :api_key => VWorkApp.api_key })
-      if res.success?
-        self.id = res["job"]["id"]
-        self 
-      else
-        self.class.bad_response(res)
+      perform(:post, "/jobs.xml", {}, self.to_hash) do |res|
+        Job.from_hash(res["job"])
       end
+
+      # res = self.class.post("/jobs", :body => self.to_hash, :query => { :api_key => VWorkApp.api_key })
+      # if res.success?
+      #   self.id = res["job"]["id"]
+      #   self 
+      # else
+      #   self.class.bad_response(res)
+      # end
     end
 
     def update(id, attributes)
@@ -136,21 +87,25 @@ module VWorkApp
       res.success? ? res : bad_response(res)
     end
 
-    def self.all
-      find
+    def delete(use_third_party_id = false)
+      perform(:delete, "/jobs/#{id}.xml", { :use_third_party_id => use_third_party_id })
     end
 
-    ##
-    # Returns jobs that match the given query options. Valid options are:
-    #   - :state — Filter by state. Possible values: unallocated, allocated, assigned, not_started, started, completed.
-    #   - :start_at — Filter by planned_start_at/last_action_time (must also give end_at).
-    #   - :end_at — Filter by planned_start_at/last_action_time (must also give start_at).
-    #   - :customer_name — Filter by customer name.
-    #   - :worker_id — Filter by assigned worker.
-    #   - :worker_third_party_id — Filter by assigned worker third party id.
-    #   - :per_page — The number of records to return per page.
-    #   - :page — The page of records to return.
-    #   - :third_party_id — The third_party_id associated with the job.
+    def self.show(id, use_third_party_id = false)
+      perform(:get, "/jobs/#{id}.xml", :use_third_party_id => use_third_party_id) do |res|
+        Job.from_hash(res["job"])
+      end
+      # raw = get("/jobs/#{id}.xml", :query => { :api_key => VWorkApp.api_key, :use_third_party_id => use_third_party_id })
+      # case res
+      # when Net::HTTPOK
+      #   Job.from_hash(raw["job"])
+      # when Net::HTTPNotFound
+      #    nil
+      # else
+      #   bad_response(res)
+      # end
+    end
+
     def self.find(options={})
       third_party_id = options.delete(:third_party_id)
       options[:search] = "@third_party_id=#{third_party_id.to_s}" if (third_party_id)
@@ -159,27 +114,55 @@ module VWorkApp
       raw = get("/jobs.xml", :query => options)
       raw["jobs"].map { |h| Job.from_hash(h) }
     end
+            
+  end
 
-    def self.show(id, use_third_party_id = false)
-      raw = get("/jobs/#{id}.xml", :query => { :api_key => VWorkApp.api_key, :use_third_party_id => use_third_party_id })
-      case res
-      when Net::HTTPOK
-        Job.from_hash(raw["job"])
-      when Net::HTTPNotFound
-         nil
-      else
-        bad_response(res)
-      end
+  class Step
+    include AttributeEquality
+    attr_accessor :name, :location
+    
+    def initialize(name, location = nil)
+      @name = name
+      @location = location
     end
-        
-    def self.delete(id)      
+
+    def to_hash
+      h = { :name => name }
+      h.merge!({ :location => location.to_hash }) if location  
+      h
     end
     
-    def assigned_to
-      return nil if @assigned_to_id.nil?
-      @assigned_to ||= Worker.show(self.assigned_to_id)
+    def self.from_hash(attributes)
+      Step.new(attributes["name"], Location.from_hash(attributes["location"]))
     end
-        
+
+    def ==(other)
+      attributes_eql?(other, [:name, :location])
+    end
+    
+  end
+
+  class CustomField
+    include AttributeEquality
+    attr_accessor :name, :value
+
+    def initialize(name, value)
+      @name = name
+      @value = value
+    end
+
+    def to_hash
+      { :name => name.to_s, :value => value.to_s }
+    end
+    
+    def self.from_hash(attributes)
+      CustomField.new(attributes["name"], attributes["value"])
+    end
+    
+    def ==(other)
+      attributes_eql?(other, [:name, :value])
+    end
+
   end
 
 end

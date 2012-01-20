@@ -11,5 +11,8 @@ This is a wrapper around vWorkApp's API. Go on! Use it!
 
 - Broken API bits:
     * What's find(:search) for??. 
-    * customer_name broken? 
-    * Why can't I filter by template? 
+    * Why can't I filter by template?
+    
+- Missing job.actual_duration, job.actual_start_at
+
+- Should have connivence method to lookup a customer from a job
