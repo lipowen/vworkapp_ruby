@@ -4,7 +4,7 @@ require "vworkapp_ruby"
 require "json"
 require "haml"
 
-VW.api_key = "AtuogECLCV2R7uT-fkPg"
+VW.api_key = "MY_API_KEY"
 
 get '/' do
   @workers = VW::Worker.find

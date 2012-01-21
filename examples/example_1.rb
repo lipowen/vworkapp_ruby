@@ -9,7 +9,7 @@ require "vworkapp_ruby"
 
 MIN = 60
 
-VWorkApp.api_key = "AtuogECLCV2R7uT-fkPg"
+VWorkApp.api_key = "MY_API_KEY"
 
 puts "vWorkApp - Create Job"
 puts "----------------------------"

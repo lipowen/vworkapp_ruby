@@ -7,7 +7,7 @@ $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib') unless $LOAD_PATH.include
 require "rubygems"
 require "vworkapp_ruby"
 
-VW.api_key = "AtuogECLCV2R7uT-fkPg"
+VW.api_key = "MY_API_KEY"
 
 puts "vWorkApp - List of jobs"
 puts "----------------------------"
