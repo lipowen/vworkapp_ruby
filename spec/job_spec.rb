@@ -125,6 +125,7 @@ describe VW::Job do
           VW::Step.new("End",   VWorkApp::Location.new("Other Street", 38.779536, -123.401503))
         ], nil, nil, @worker.id, DateTime.parse("2012-12-25 16:30"))
         @job = @job.create
+
         r_job = VW::Job.show(@job.id)
 
         r_job.worker_id.should == @worker.id
@@ -134,8 +135,8 @@ describe VW::Job do
     end
 
     after(:each) do
-      @job.delete if @job
-      @worker.delete if @worker
+      # @job.delete if @job
+      # @worker.delete if @worker
     end
 
   end

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    vworkapp_ruby (0.0.1)
+    vworkapp_ruby (0.1.0)
       gcoder
       httparty
 

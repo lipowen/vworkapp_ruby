@@ -13,7 +13,7 @@ module VWorkApp
       @id = id
       @third_party_id = third_party_id
     end
-        
+
     def self.from_hash(attributes)
       worker = Worker.new(attributes["name"], attributes["email"], attributes["id"], attributes["third_party_id"])
       worker.latest_telemetry = Telemetry.from_hash(attributes["latest_telemetry"]) if attributes["latest_telemetry"]

@@ -1,0 +1,47 @@
+!!! 5
+%html
+  %head
+    %meta{:content => "initial-scale=1.0, user-scalable=no", :name => "viewport"}/
+    
+    %link{:rel => "StyleSheet", :href => "/style.css", :type => "text/css" }
+        
+    %script{:src => "http://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&sensor=false", :type => "text/javascript"}
+    
+    :javascript
+      infoWindow = new google.maps.InfoWindow();
+
+      function makeMarker(data, map) {
+        var marker = new google.maps.Marker({
+          position: new google.maps.LatLng(data.lat, data.lng),
+          map: map,
+          icon: 'truck.png'
+        });                
+
+        google.maps.event.addListener(marker, 'click', function() {
+          infoWindow.close();
+          infoWindow.setContent(data.jobs)
+          infoWindow.open(map, marker);
+        });
+      }
+    
+      function initialize() {
+        
+        var myOptions = {
+          center: new google.maps.LatLng(37.779536,-122.401503),
+          zoom: 12,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        
+        var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+        
+        workers = #{job_json(@workers)}
+        
+        for (var i = 0; i < workers.length; i++) {
+          if (workers[i] != null)
+            makeMarker(workers[i], map);
+        }
+        
+      }
+    
+  %body{:onload => "initialize()"}
+    #map_canvas{:style => "width:100%; height:100%"}

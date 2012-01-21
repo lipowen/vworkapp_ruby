@@ -3,10 +3,8 @@
 # Needed because the extra attributes on the below XML cause httparty to crash: 
 #   <jobs type="array" current_page="1" per_page="27" total_pages="1" total_entries="27">
 # 
-# We probably shouldn't have extra parameters here.
-# 
-#   && v.is_a?(Array)
-
+# We probably shouldn't have extra parameters here. Change was:
+#   && (v.is_a?(Array) || v.is_a?(Hash))
 module MultiXml
 
   def MultiXml.typecast_xml_value(value)

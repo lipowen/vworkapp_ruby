@@ -4,9 +4,9 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["vWorkApp Inc.", "Aish Fenton"]
   s.email       = ["info@vworkapp.com"]
-  s.homepage    = "http://api.vworkapp.com/api/"
-  s.summary     = %q{Simple interface to vWorkApp's api}
-  s.description = %q{Simple interface to vWorkApp's api}
+  s.homepage    = "http://developer.vworkapp.com"
+  s.summary     = %q{A ruby wrapper for vWorkApp's API}
+  s.description = %q{A ruby wrapper for vWorkApp's API}
 
   s.required_rubygems_version = ">= 1.3.6"
 

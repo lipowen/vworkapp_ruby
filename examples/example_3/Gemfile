@@ -1,0 +1,5 @@
+source "http://rubygems.org"
+
+gem 'vworkapp_ruby'
+gem 'sinatra'
+gem 'haml'

@@ -72,14 +72,6 @@ module VWorkApp
       perform(:post, "/jobs.xml", {}, self.to_hash) do |res|
         Job.from_hash(res["job"])
       end
-
-      # res = self.class.post("/jobs", :body => self.to_hash, :query => { :api_key => VWorkApp.api_key })
-      # if res.success?
-      #   self.id = res["job"]["id"]
-      #   self 
-      # else
-      #   self.class.bad_response(res)
-      # end
     end
 
     def update(id, attributes)
@@ -95,15 +87,6 @@ module VWorkApp
       perform(:get, "/jobs/#{id}.xml", :use_third_party_id => use_third_party_id) do |res|
         Job.from_hash(res["job"])
       end
-      # raw = get("/jobs/#{id}.xml", :query => { :api_key => VWorkApp.api_key, :use_third_party_id => use_third_party_id })
-      # case res
-      # when Net::HTTPOK
-      #   Job.from_hash(raw["job"])
-      # when Net::HTTPNotFound
-      #    nil
-      # else
-      #   bad_response(res)
-      # end
     end
 
     def self.find(options={})
