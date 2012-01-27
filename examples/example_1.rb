@@ -12,7 +12,7 @@ MIN = 60
 VWorkApp.api_key = "MY_API_KEY"
 
 puts "vWorkApp - Create Job"
-puts "----------------------------"
+puts "---------------------"
 
 job = VW::Job.new(
   "ACME Baking", 

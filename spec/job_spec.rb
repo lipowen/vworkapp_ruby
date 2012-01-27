@@ -3,7 +3,11 @@ require "vworkapp_ruby"
 describe VW::Job do
 
   before(:all) do
-    VW::Job.base_uri 'api.staging.vworkapp.com/api/2.0'
+    VW::Job.base_uri 'api.feat-scales.vworkapp.com/api/2.0'
+    VW::Worker.base_uri 'api.feat-scales.vworkapp.com/api/2.0'
+
+    # VW::Job.base_uri 'api.staging.vworkapp.com/api/2.0'
+    # VW::Worker.base_uri 'api.staging.vworkapp.com/api/2.0'
     VW.api_key = "AtuogECLCV2R7uT-fkPg"
   end
 
@@ -77,8 +81,7 @@ describe VW::Job do
           ],
           [
             VW::CustomField.new("Note", "Hi There!")
-          ],
-          100, 202, 101, Date.new(2001,2,3)
+          ]
         )
         
         @job = @job.create
@@ -123,59 +126,100 @@ describe VW::Job do
         [
           VW::Step.new("Start", VWorkApp::Location.new("880 Harrison St", 37.779536, -122.401503)),
           VW::Step.new("End",   VWorkApp::Location.new("Other Street", 38.779536, -123.401503))
-        ], nil, nil, @worker.id, DateTime.parse("2012-12-25 16:30"))
+        ], nil, nil, nil, @worker.id, DateTime.parse("2012-12-25 16:30-8"))
         @job = @job.create
 
         r_job = VW::Job.show(@job.id)
-
         r_job.worker_id.should == @worker.id
-        r_job.planned_start_time.should == DateTime.parse("2012-12-25 16:30")
+        r_job.planned_start_at.should == DateTime.parse("2012-12-25 16:30-8")
+      end
+
+      it "Creates a job with completed steps" do
+        @worker = VW::Worker.new("Joe", "joe@example.com")
+        @worker = @worker.create
+        
+        @job = VW::Job.new("Joe", "Std Delivery", 60,
+        [
+          VW::Step.new("Start", VWorkApp::Location.new("880 Harrison St", 37.779536, -122.401503)),
+          VW::Step.new("End",   VWorkApp::Location.new("Other Street", 38.779536, -123.401503))
+        ], nil, nil, nil, @worker.id, DateTime.parse("2012-12-25 16:30-8"))
+        @job = @job.create
+      
+        r_job = VW::Job.show(@job.id)
+        r_job.worker_id.should == @worker.id
+        r_job.planned_start_at.should == DateTime.parse("2012-12-25 16:30-8")
       end
       
     end
 
     after(:each) do
-      # @job.delete if @job
-      # @worker.delete if @worker
+      @job.delete if @job
+      @worker.delete if @worker
     end
 
   end
 
-  # context "With a known job" do
-  #   before(:each) do
-  #     @worker = VW::Worker.new("Joe", "joe@example.com")
-  #     @worker = @worker.create
-  #   end
-  # 
-  #   after(:each) do
-  #     @worker.delete
-  #   end
-  # 
-  #   describe "#show" do 
-  #     it "Returns the worker" do
-  #       r_worker = VW::Worker.show(@worker.id)
-  #       r_worker.name.should == "Joe"
-  #       r_worker.email.should == "joe@example.com"
-  #     end
-  # 
-  #     it "Returns nil if not found" do
-  #       pending("Bug in vWorkApp. Should be returning a 404 but isn't")
-  #       r_worker = VW::Worker.show(-1)
-  #       r_worker.should be_nil
-  #     end
-  #   end
-  # 
-  #   describe "#update" do
-  #     it "Updates the worker" do
-  #       @worker.name = "Joe2"
-  #       @worker.email = "joe2@example.com"
-  #       @worker.update
-  #       r_worker = VW::Worker.show(@worker.id)
-  #       r_worker.name.should == "Joe2"
-  #       r_worker.email.should == "joe2@example.com"
-  #     end
-  #   end
-  # 
+  context "With a known job" do
+    before(:each) do
+      @job = VW::Job.new("Joe", "Std Delivery", 60, 
+        [
+          VW::Step.new("Start", VWorkApp::Location.new("880 Harrison St", 37.779536, -122.401503)),
+          VW::Step.new("End",   VWorkApp::Location.new("Other Street", 38.779536, -123.401503))
+        ],
+        [
+          VW::CustomField.new("Note", "Hi There!")
+        ],
+        nil, "my_id"
+      )
+      @job = @job.create
+    end
+  
+    after(:each) do
+      @job.delete if @job
+      @worker.delete if @worker
+    end
+  
+    describe "#Show" do 
+      it "Returns the job" do
+        r_job = VW::Job.show(@job.id)
+        r_job.customer_name.should == "Joe"
+        r_job.template_name.should == "Std Delivery"
+      end
+  
+      it "Returns nil if not found" do
+        r_job = VW::Job.show(-1)
+        r_job.should be_nil
+      end
+    end
+  
+    describe "#Update" do
+
+      it "Updates the standard attributes" do
+        @job.customer_name = "Joe2"
+        @job.template_name == "Not Standard"
+        @job.planned_duration == 64
+        @job.update
+
+        r_job = VW::Job.show(@job.id)
+        r_job.customer_name.should == @job.customer_name
+        r_job.template_name.should == @job.template_name
+        r_job.planned_duration.should == @job.planned_duration
+      end
+
+      it "Assigns a job" do
+        @worker = VW::Worker.new("Joe", "joe@example.com")
+        @worker = @worker.create
+
+        @job.planned_start_at = DateTime.parse("2012-12-25 16:45-8")
+        @job.worker_id = @worker.id
+        @job.update
+
+        r_job = VW::Job.show(@job.id)
+        r_job.worker_id.should == @worker.id
+      end
+
+    end
+  
   #   describe "#delete" do
   #     it "Deletes the worker" do
   #       @worker.delete
@@ -193,8 +237,7 @@ describe VW::Job do
   #     end
   #   end
   #   
-  # end
-
+  end
 
 
 end

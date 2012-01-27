@@ -3,7 +3,8 @@ require "vworkapp_ruby"
 describe VW::Customer do
 
   before(:all) do
-    VW::Customer.base_uri 'api.staging.vworkapp.com/api/2.0'
+    VW::Customer.base_uri 'api.feat-scales.vworkapp.com/api/2.0'
+    # VW::Customer.base_uri 'api.staging.vworkapp.com/api/2.0'
     VW.api_key = "AtuogECLCV2R7uT-fkPg"
   end
 
@@ -48,21 +49,21 @@ describe VW::Customer do
       it "Creates a customer" do
         @customer = VW::Customer.new("Joe's Baked Goods", nil, "My ID")
         @customer = @customer.create
-      
+
         r_cust = VW::Customer.show(@customer.id)
         r_cust.name.should == @customer.name
         r_cust.third_party_id.should == @customer.third_party_id
       end
 
       it "Creates a customer with a billing and delivery contact" do
-        site_contact = VW::Contact.new("Joe", "Fisher", "415-465-8888", "415-465-9999", "joe@bakary.com")
+        delivery_contact = VW::Contact.new("Joe", "Fisher", "415-465-8888", "415-465-9999", "joe@bakary.com")
         billing_contact = VW::Contact.new("Felix", "Smith")
-        @customer = VW::Customer.new("Joe's Baked Goods", nil, "My ID", site_contact, billing_contact)
+        @customer = VW::Customer.new("Joe's Baked Goods", nil, "My ID", delivery_contact, billing_contact)
         @customer = @customer.create
       
         r_cust = VW::Customer.show(@customer.id)
         
-        r_cust.site_contact.should == site_contact        
+        r_cust.delivery_contact.should == delivery_contact
         r_cust.billing_contact.should == billing_contact
       end
 
@@ -73,7 +74,7 @@ describe VW::Customer do
         @customer = @customer.create
       
         r_cust = VW::Customer.show(@customer.id)
-        r_cust.site_contact.location.should == site    
+        r_cust.delivery_contact.location.should == site    
       end
       
     end
@@ -118,14 +119,14 @@ describe VW::Customer do
       end
 
       it "Updates a customers site and billing contacts" do
-        site_contact = VW::Contact.new("Joe", "Fisher", "415-465-8888", "415-465-9999", "joe@bakary.com")
+        delivery_contact = VW::Contact.new("Joe", "Fisher", "415-465-8888", "415-465-9999", "joe@bakary.com")
         billing_contact = VW::Contact.new("Felix", "Smith")
-        @customer.site_contact = site_contact
+        @customer.delivery_contact = delivery_contact
         @customer.billing_contact = billing_contact
         @customer.update
 
         r_cust = VW::Customer.show(@customer.id)
-        r_cust.site_contact.should == site_contact
+        r_cust.delivery_contact.should == delivery_contact
         r_cust.billing_contact.should == billing_contact
       end
 

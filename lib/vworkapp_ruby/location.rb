@@ -1,7 +1,7 @@
 module VWorkApp
 
   class Location
-    include AttributeEquality
+    include AttributeMethods
     attr_accessor :formatted_address, :lat, :lng
     
     def initialize(formatted_address, lat, lng)
@@ -14,14 +14,9 @@ module VWorkApp
       loc = Location.geocode(address, region).first.geometry.location
       self.new(address, loc.lat, loc.lng)
     end
-    
-    def to_hash
-      { :formatted_address => formatted_address, :lat => lat, :lng => lng }
-    end
-    
-    def self.from_hash(attributes)
-      return nil unless attributes
-      Location.new(attributes["formatted_address"], attributes["lat"], attributes["lng"])
+
+    def attributes
+      [:formatted_address, :lat, :lng]
     end
 
     def ==(other)

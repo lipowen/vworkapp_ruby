@@ -52,6 +52,25 @@ Full documentation on the API can be found [here](http://api.vworkapp.com/api/).
 - Broken in the API itself:
     * Why can't I filter by template?
     * Returning 404s on show
+    * What's the point posting pubished_at? And why does it need to be present when assigning a job? 
+    * Delivery Contact should be called SiteContact
+    * Errors suck: When you try to post a job without a published_at you get:
+        <errors>
+          <error>must exist for allocated/assigned jobs.</error>
+        </errors>
+    * What's the difference between state and progress_state?? Can this be reverted to just state?
+      
+        ASSIGNED_STATE_UNALLOCATED = 'unallocated'
+        ASSIGNED_STATE_ALLOCATED = 'allocated'
+        ASSIGNED_STATE_ASSIGNED = 'assigned'
+        ASSIGNED_STATE_DELETED = 'deleted'
+
+        PROGRESS_STATE_NOT_STARTED = 'not_started'
+        PROGRESS_STATE_STARTED  = 'started'
+        PROGRESS_STATE_COMPLETED = 'completed'
+
+    * Can't pass a location object in yet. API should support this
+
     
 - Missing:
   * job.actual_duration, 

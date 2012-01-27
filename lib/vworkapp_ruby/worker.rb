@@ -1,8 +1,10 @@
 module VWorkApp
 
-  class Worker < Base    
+  class Worker < Resource    
+
     attr_accessor :id, :name, :email, :latest_telemetry, :third_party_id
-    
+    attr_reader :latest_telemetry
+
     #---------------
     # Object Methods
     #---------------
@@ -14,25 +16,16 @@ module VWorkApp
       @third_party_id = third_party_id
     end
 
-    def self.from_hash(attributes)
-      worker = Worker.new(attributes["name"], attributes["email"], attributes["id"], attributes["third_party_id"])
-      worker.latest_telemetry = Telemetry.from_hash(attributes["latest_telemetry"]) if attributes["latest_telemetry"]
-      worker
+    def attributes
+      [:id, :name, :email, :third_party_id, {:latest_telemetry => VW::Telemetry}]
+    end
+
+    def ==(other)
+      attributes_eql?(other, [:id, :name, :email, :third_party_id])
     end
 
     def to_hash
-      worker_hash = {
-        :worker => {
-          :name => self.name,
-          :email => self.email
-        }
-      }
-      worker_hash[:worker][:third_party_id] = self.third_party_id if third_party_id
-      worker_hash
-    end
-    
-    def ==(other)
-      attributes_eql?(other, [:id, :name, :email, :third_party_id])
+      { :worker => super.to_hash }
     end
     
     #---------------
@@ -63,23 +56,6 @@ module VWorkApp
       self.perform(:get, "/workers.xml") do |res|
         res["workers"].map { |h| Worker.from_hash(h) }
       end
-    end
-    
-  end
-
-  class Telemetry
-    attr_accessor :lat, :lng, :recorded_at, :heading, :speed
-    
-    def initialize (lat, lng, recorded_at, heading, speed)
-      @lat = lat
-      @lng = lng
-      @recorded_at = recorded_at
-      @heading = heading
-      @speed = speed
-    end
-    
-    def self.from_hash(attributes)
-      Telemetry.new(attributes["lat"], attributes["lng"], attributes["recorded_at"], attributes["heading"], attributes["speed"])
     end
     
   end
