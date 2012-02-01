@@ -27,6 +27,7 @@ module VWorkApp
     def to_xml(options = {})
       except = options[:except] || []
       except << "custom_fields" unless custom_fields 
+      except << "customer_id" unless customer_id 
       super(:except => except)
     end
     

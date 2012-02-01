@@ -15,16 +15,18 @@ puts "vWorkApp - Create Job"
 puts "---------------------"
 
 job = VW::Job.new(
-  "ACME Baking", 
-  "Standard Booking",
-  10 * MIN,
-  [
-    VW::Step.new("Start", VW::Location.new("880 Harrison St!", 37.779536, -122.401503)),
-    VW::Step.new("End", VW::Location.from_address("201 1st Street, SF", :us))
+  :customer_name => "ACME Baking", 
+  :template_name => "Standard Booking",
+  :planned_duration => 10 * MIN,
+  :steps => [
+    {:name => "Start", :location => {:formatted_address => "880 Harrison St, SF, USA", :lat => 37.779536, :lng => -122.401503}},
+    {:name => "End", :location => VW::Location.from_address("201 1st Street, SF", :us).attributes}
   ],
-  [
-    VW::CustomField.new("Note", "Hi There!"),
+  :custom_fields => [
+    :name => "Note", :value => "Hi There!"
   ]
 )
 
-puts "Job Created!. Check out the job in vWorkApp with id: #{job.create.id}"
+job = job.create
+
+puts "Job Created!. Check out the job in vWorkApp with id: #{job.id}"

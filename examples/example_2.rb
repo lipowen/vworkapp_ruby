@@ -3,7 +3,6 @@ $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib') unless $LOAD_PATH.include
 # -------------
 # Example 2: Print each worker's jobs
 # -------------
-
 require "rubygems"
 require "vworkapp_ruby"
 

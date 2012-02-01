@@ -5,6 +5,7 @@ describe VW::Job do
   before(:all) do
     VW::Job.base_uri 'https://api.staging.vworkapp.com/api/2.0'
     VW::Worker.base_uri 'https://api.staging.vworkapp.com/api/2.0'
+    VW::Customer.base_uri 'https://api.staging.vworkapp.com/api/2.0'
     VW.api_key = "AtuogECLCV2R7uT-fkPg"
   end
 
@@ -204,9 +205,7 @@ describe VW::Job do
     describe "#Assocation Connivence Methods" do
 
       it "Loads the job's customer" do
-        pending("Needs fixing first: https://github.com/visfleet/vworkapp_ruby/issues/2")
-        r_customer = VW::Job.show(@job.id).customer
-        
+        r_customer = VW::Job.show(@job.id).customer        
         r_customer.should be_instance_of VW::Customer
         r_customer.name.should == "Joe"
       end
