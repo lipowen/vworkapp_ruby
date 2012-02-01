@@ -3,151 +3,103 @@ require "vworkapp_ruby"
 describe VW::Job do
 
   before(:all) do
-    VW::Job.base_uri 'api.feat-scales.vworkapp.com/api/2.0'
-    VW::Worker.base_uri 'api.feat-scales.vworkapp.com/api/2.0'
-
-    # VW::Job.base_uri 'api.staging.vworkapp.com/api/2.0'
-    # VW::Worker.base_uri 'api.staging.vworkapp.com/api/2.0'
+    VW::Job.base_uri 'https://api.staging.vworkapp.com/api/2.0'
+    VW::Worker.base_uri 'https://api.staging.vworkapp.com/api/2.0'
     VW.api_key = "AtuogECLCV2R7uT-fkPg"
   end
 
   context "Without a known job" do
 
-    describe "#Equals" do
-
-      it "Is equal to another job if it has the same attributes, steps, and custom_fields" do
-        job_1 = VW::Job.new("Joe", "Std Delivery", 60, 
-          [
-            VW::Step.new("Start", VWorkApp::Location.new("880 Harrison St", 37.779536, -122.401503)),
-            VW::Step.new("End",   VWorkApp::Location.new("Other Street", 38.779536, -123.401503))
-          ],
-          [
-            VW::CustomField.new("Note", "Hi There!")
-          ],
-          100, 202, 101, Date.new(2001,2,3)
-        )
-        job_2 = VW::Job.new("Joe", "Std Delivery", 60, 
-          [
-            VW::Step.new("Start", VWorkApp::Location.new("880 Harrison St!", 37.779536, -122.401503)),
-            VW::Step.new("End",   VWorkApp::Location.new("Other Street", 38.779536, -123.401503))
-          ],
-          [
-            VW::CustomField.new("Note", "Hi There!")
-          ],
-          100, 202, 101, Date.new(2001,2,3)
-        )
-        job_1.should == job_2
-      end
-
-      it "Isn't equal to another job if doesn't share the key attributes" do
-        job_1 = VW::Job.new("Joe", "Std Delivery", 60, nil, nil, 100, 202, 101, Date.new(2001,2,3))
-        job_2 = VW::Job.new("Joe", "Std Delivery", 60, nil, nil, 100, 202, 101, Date.new(2001,4,3))
-        job_1.should_not == job_2
-      end
-
-      it "Isn't equal to another job if doesn't share the same steps" do
-        job_1 = VW::Job.new("Joe", "Std Delivery", 60, [
-            VW::Step.new("Start", VWorkApp::Location.new("880 Harrison St", 37.779536, -122.401503)),
-            VW::Step.new("End",   VWorkApp::Location.new("Other Street", 38.779536, -122.401503))
-        ])
-        job_2 = VW::Job.new("Joe", "Std Delivery", 60, [
-            VW::Step.new("Start", VWorkApp::Location.new("880 Harrison St", 37.779536, -122.401503)),
-            VW::Step.new("End",   VWorkApp::Location.new("DIFFERENT", 38.779536, 100))
-        ])
-        job_1.should_not == job_2
-      end
-
-      it "Isn't equal to another job if doesn't share the same custom fields" do
-        job_1 = VW::Job.new("Joe", "Std Delivery", 60, nil, [
-            VW::CustomField.new("Note1", "Value1"),
-            VW::CustomField.new("Note2", "Value2"),
-        ])
-        job_2 = VW::Job.new("Joe", "Std Delivery", 60, nil, [
-            VW::CustomField.new("Note1", "Value1"),
-            VW::CustomField.new("Note2", "DIFFERENT"),
-        ])
-        job_1.should_not == job_2
-      end
-
-    end
-
     describe "#Create" do
       
       it "Assigns the new job an id" do
-        @job = VW::Job.new("Joe", "Std Delivery", 60, 
-          [
-            VW::Step.new("Start", VWorkApp::Location.new("880 Harrison St", 37.779536, -122.401503)),
-            VW::Step.new("End",   VWorkApp::Location.new("Other Street", 38.779536, -123.401503))
+        @job = VW::Job.new(:customer_name => "Joe", :template_name => "Std Delivery", :planned_duration => 60, 
+          :steps => [
+            {:name  => "Start", :location => {:formatted_address => "880 Harrison St", :lat => 37.779536, :lng => -122.401503}},
+            {:name  => "End",   :location => {:formatted_address => "Other Street", :lat => 38.779536, :lng => -123.401503}},
           ],
-          [
-            VW::CustomField.new("Note", "Hi There!")
-          ]
-        )
-        
+          :custom_fields => [
+            {:name => "Note", :value => "Hi There!"}
+          ])
+          
         @job = @job.create
         @job.id.should_not be_nil
       end
     
       it "Creates an unassigned job" do
-        @job = VW::Job.new("Joe", "Std Delivery", 60,
-        [
-          VW::Step.new("Start", VWorkApp::Location.new("880 Harrison St", 37.779536, -122.401503)),
-          VW::Step.new("End",   VWorkApp::Location.new("Other Street", 38.779536, -123.401503))
-        ])
+        @job = VW::Job.new(:customer_name => "Joe", :template_name => "Std Delivery", :planned_duration => 60, 
+          :steps => [
+            {:name  => "Start", :location => {:formatted_address => "880 Harrison St", :lat => 37.779536, :lng => -122.401503}},
+            {:name  => "End",   :location => {:formatted_address => "Other Street", :lat => 38.779536, :lng => -123.401503}},
+          ])
+          
         @job = @job.create
         r_job = VW::Job.show(@job.id)
         r_job.customer_name.should == @job.customer_name
         r_job.template_name.should == @job.template_name
         r_job.planned_duration.should == @job.planned_duration
+        r_job.state.should == "unallocated"
+        r_job.progress_state.should == "not_started"
         r_job.steps.should == @job.steps
       end
 
       it "Creates an unassigned job with Custom Fields" do
-        @job = VW::Job.new("Joe", "Std Delivery", 60,
-          [
-            VW::Step.new("Start", VWorkApp::Location.new("880 Harrison St", 37.779536, -122.401503)),
-            VW::Step.new("End",   VWorkApp::Location.new("Other Street", 38.779536, -123.401503))
+        @job = VW::Job.new(:customer_name => "Joe", :template_name => "Std Delivery", :planned_duration => 60, 
+          :steps => [
+            {:name  => "Start", :location => {:formatted_address => "880 Harrison St", :lat => 37.779536, :lng => -122.401503}},
+            {:name  => "End",   :location => {:formatted_address => "Other Street", :lat => 38.779536, :lng => -123.401503}},
           ],
-          [
-            VW::CustomField.new("Note1", "Value1"),
-            VW::CustomField.new("Note2", "Value2"),
-          ]
-        )
+          :custom_fields => [
+            {:name => "Note1", :value => "Value1"},
+            {:name => "Note2", :value => "Value2"}
+          ])
+
         @job = @job.create
         r_job = VW::Job.show(@job.id)
         r_job.custom_fields.should == @job.custom_fields
       end
 
       it "Creates and assigns a job" do
-        @worker = VW::Worker.new("Joe", "joe@example.com")
+        @worker = VW::Worker.new(:name => "Joe", :email => "joe@example.com")
         @worker = @worker.create
+
+        planned_start_at = Time.parse("2012-12-25 16:30-8")
         
-        @job = VW::Job.new("Joe", "Std Delivery", 60,
-        [
-          VW::Step.new("Start", VWorkApp::Location.new("880 Harrison St", 37.779536, -122.401503)),
-          VW::Step.new("End",   VWorkApp::Location.new("Other Street", 38.779536, -123.401503))
-        ], nil, nil, nil, @worker.id, DateTime.parse("2012-12-25 16:30-8"))
+        @job = VW::Job.new(:customer_name => "Joe", :template_name => "Std Delivery", :planned_duration => 60,
+          :worker_id => @worker.id, :planned_start_at => planned_start_at,
+          :steps => [
+            {:name  => "Start", :location => {:formatted_address => "880 Harrison St", :lat => 37.779536, :lng => -122.401503}},
+            {:name  => "End",   :location => {:formatted_address => "Other Street", :lat => 38.779536, :lng => -123.401503}},
+          ])
         @job = @job.create
 
         r_job = VW::Job.show(@job.id)
         r_job.worker_id.should == @worker.id
-        r_job.planned_start_at.should == DateTime.parse("2012-12-25 16:30-8")
+        r_job.state.should == "assigned"
+        r_job.planned_start_at.should == planned_start_at
       end
 
       it "Creates a job with completed steps" do
-        @worker = VW::Worker.new("Joe", "joe@example.com")
+        pending("Broken until https://github.com/visfleet/vworkapp_ruby/issues/1 is resolved")
+        @worker = VW::Worker.new(:name => "Joe", :email => "joe@example.com")
         @worker = @worker.create
         
-        @job = VW::Job.new("Joe", "Std Delivery", 60,
-        [
-          VW::Step.new("Start", VWorkApp::Location.new("880 Harrison St", 37.779536, -122.401503)),
-          VW::Step.new("End",   VWorkApp::Location.new("Other Street", 38.779536, -123.401503))
-        ], nil, nil, nil, @worker.id, DateTime.parse("2012-12-25 16:30-8"))
+        planned_start_at = Time.parse("2012-12-25 16:30-8")
+        actual_start_at = Time.at(Time.now.to_i)
+        
+        @job = VW::Job.new(:customer_name => "Joe", :template_name => "Std Delivery", :planned_duration => 60,
+          :worker_id => @worker.id, :planned_start_at => planned_start_at,
+          :steps => [
+            {:name  => "Start", :location => {:formatted_address => "880 Harrison St", :lat => 37.779536, :lng => -122.401503}, :completed_at => actual_start_at},
+            {:name  => "End",   :location => {:formatted_address => "Other Street", :lat => 38.779536, :lng => -123.401503}},
+          ])
         @job = @job.create
       
         r_job = VW::Job.show(@job.id)
         r_job.worker_id.should == @worker.id
-        r_job.planned_start_at.should == DateTime.parse("2012-12-25 16:30-8")
+        r_job.progress_state.should == "started"
+        r_job.actual_start_at == actual_start_at
+        r_job.planned_start_at.should == planned_start_at
       end
       
     end
@@ -161,16 +113,14 @@ describe VW::Job do
 
   context "With a known job" do
     before(:each) do
-      @job = VW::Job.new("Joe", "Std Delivery", 60, 
-        [
-          VW::Step.new("Start", VWorkApp::Location.new("880 Harrison St", 37.779536, -122.401503)),
-          VW::Step.new("End",   VWorkApp::Location.new("Other Street", 38.779536, -123.401503))
+      @job = VW::Job.new(:customer_name => "Joe", :template_name => "Std Delivery", :planned_duration => 60, :third_party_id => "my_id",
+        :steps => [
+          {:name  => "Start", :location => {:formatted_address => "880 Harrison St", :lat => 37.779536, :lng => -122.401503}},
+          {:name  => "End",   :location => {:formatted_address => "Other Street", :lat => 38.779536, :lng => -123.401503}},
         ],
-        [
-          VW::CustomField.new("Note", "Hi There!")
-        ],
-        nil, "my_id"
-      )
+        :custom_fields => [
+          {:name => "Note", :value => "Hi There!"}
+        ])
       @job = @job.create
     end
   
@@ -179,11 +129,13 @@ describe VW::Job do
       @worker.delete if @worker
     end
   
-    describe "#Show" do 
+    describe "#Show" do
       it "Returns the job" do
         r_job = VW::Job.show(@job.id)
         r_job.customer_name.should == "Joe"
         r_job.template_name.should == "Std Delivery"
+        r_job.state == "unallocated"
+        r_job.progress_state == "not_started"
       end
   
       it "Returns nil if not found" do
@@ -207,36 +159,71 @@ describe VW::Job do
       end
 
       it "Assigns a job" do
-        @worker = VW::Worker.new("Joe", "joe@example.com")
+        @worker = VW::Worker.new(:name => "Joe", :email => "joe@example.com")
         @worker = @worker.create
 
-        @job.planned_start_at = DateTime.parse("2012-12-25 16:45-8")
+        start_at = Time.at(Time.now.to_i)
+
+        @job.planned_start_at = start_at
         @job.worker_id = @worker.id
         @job.update
 
         r_job = VW::Job.show(@job.id)
         r_job.worker_id.should == @worker.id
+        r_job.planned_start_at.should == start_at
+        r_job.published_at.should == start_at
+        r_job.state.should == "assigned"
+      end
+      
+      it "Starts a job" do
+        pending("Broken until https://github.com/visfleet/vworkapp_ruby/issues/1 is resolved")
+      end
+
+      it "Completes a job" do
+        pending("Broken until https://github.com/visfleet/vworkapp_ruby/issues/1 is resolved")
       end
 
     end
   
-  #   describe "#delete" do
-  #     it "Deletes the worker" do
-  #       @worker.delete
-  #       # XXX Can't verify until #show is fixed
-  #       # r_worker = VW::Worker.show(@worker.id)
-  #       # r_worker.should be_nil
-  #     end
-  #   end
-  # 
-  #   describe "#find" do
-  #     it "Finds all workers" do
-  #       results = VW::Worker.find
-  #       results.should be_instance_of(Array)
-  #       results.should include(@worker)
-  #     end
-  #   end
-  #   
+    describe "#Delete" do
+      it "Deletes the job" do
+        @job.delete
+        r_job = VW::Job.show(@job.id)
+        r_job.should be_nil
+      end
+    end
+  
+    describe "#Find" do
+      it "Finds all jobs" do
+        results = VW::Job.find
+        results.should be_instance_of(Array)
+        results.should include(@job)
+      end
+    end
+
+    describe "#Assocation Connivence Methods" do
+
+      it "Loads the job's customer" do
+        pending("Needs fixing first: https://github.com/visfleet/vworkapp_ruby/issues/2")
+        r_customer = VW::Job.show(@job.id).customer
+        
+        r_customer.should be_instance_of VW::Customer
+        r_customer.name.should == "Joe"
+      end
+
+      it "Loads the job's worker" do
+        @worker = VW::Worker.new(:name => "Joe", :email => "joe@example.com")
+        @worker = @worker.create
+        @job.planned_start_at = Time.now
+        @job.worker_id = @worker.id
+        @job.update
+
+        r_job = VW::Job.show(@job.id)
+        r_job.worker.should == @worker
+      end
+
+    end
+    
   end
 
 

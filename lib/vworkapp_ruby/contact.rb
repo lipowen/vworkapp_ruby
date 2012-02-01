@@ -1,23 +1,10 @@
 module VWorkApp
-  class Contact
-    include AttributeMethods
-    attr_accessor :first_name, :last_name, :phone, :mobile, :email, :location
-  
-    def initialize(first_name = nil, last_name = nil, phone = nil, mobile = nil, email = nil, location = nil)
-      @first_name = first_name 
-      @last_name = last_name
-      @phone = phone
-      @mobile = mobile
-      @email = email
-      @location = location
-    end
-    
-    def attributes
-      [:first_name, :last_name, :phone, :mobile, :email, {:location => VW::Location}]
-    end
+  class Contact < Base
+    hattr_accessor :first_name, :last_name, :phone, :mobile, :email, :location
+    self.include_root_in_json = false
   
     def ==(other)
-      attributes_eql?(other, [:first_name, :last_name, :phone, :mobile, :email, :location])
+      attributes_eql?(other, :first_name, :last_name, :phone, :mobile, :email, :location)
     end
   
   end

@@ -50,6 +50,8 @@ Full documentation on the API can be found [here](http://api.vworkapp.com/api/).
 - Handle paging.
 
 - Broken in the API itself:
+    * Worker should become Users
+    * Job.worker_id should become Job.assigned_to_id
     * Why can't I filter by template?
     * Returning 404s on show
     * What's the point posting pubished_at? And why does it need to be present when assigning a job? 
@@ -58,8 +60,8 @@ Full documentation on the API can be found [here](http://api.vworkapp.com/api/).
         <errors>
           <error>must exist for allocated/assigned jobs.</error>
         </errors>
-    * What's the difference between state and progress_state?? Can this be reverted to just state?
-      
+
+    * Should "STATE" be called assign_state instead?      
         ASSIGNED_STATE_UNALLOCATED = 'unallocated'
         ASSIGNED_STATE_ALLOCATED = 'allocated'
         ASSIGNED_STATE_ASSIGNED = 'assigned'
@@ -69,7 +71,43 @@ Full documentation on the API can be found [here](http://api.vworkapp.com/api/).
         PROGRESS_STATE_STARTED  = 'started'
         PROGRESS_STATE_COMPLETED = 'completed'
 
-    * Can't pass a location object in yet. API should support this
+    * Can't pass a telemetry update to a worker. Maybe API should support this? 
+
+    * Can't pass a telemetry update to a worker. Maybe API should support this? 
+
+    * This POST fails because of the nil contacts. Gives a "undefined method `with_indifferent_access' for nil:NilClass" error. Really should just be ignored instead.
+    
+        <customer> 
+          <name>Joe's Baked Goods</name> 
+          <third-party-id nil="true" /> 
+          <id nil="true" /> 
+          <billing-contact nil="true" /> 
+          <delivery-contact nil="true" /> 
+        </customer>
+
+    * This POST fails because of the nil custom fields element. Really should just be ignored instead.
+
+        <job> 
+          <steps type="array"> 
+            <step> 
+              <name>Start</name> 
+              <completed-at nil="true" /> 
+              <location> 
+                <lng type="float">-122.401503</lng> 
+                <lat type="float">37.779536</lat> 
+                <formatted-address>880 Harrison St</formatted-address> 
+              </location> 
+            </step> 
+          </steps> 
+          <planned-start-at nil="true" /> 
+          <customer-name>Joe</customer-name> 
+          <template-name>Std Delivery</template-name> 
+          <planned-duration type="integer">60</planned-duration> 
+          <custom-fields nil="true" /> 
+        </job>
+
+
+      * How do we handle updates that don't include all elements? Should it set the element to nil? Or should it ignore the element? This is where I see some companies using the new HTTP verb PATCH now. 
 
     
 - Missing:

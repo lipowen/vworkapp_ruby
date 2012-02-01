@@ -3,38 +3,21 @@ require "vworkapp_ruby"
 describe VW::Worker do
 
   before(:all) do
-    VW::Worker.base_uri 'api.staging.vworkapp.com/api/2.0'
+    VW::Worker.base_uri 'https://api.staging.vworkapp.com/api/2.0'
     VW.api_key = "AtuogECLCV2R7uT-fkPg"
   end
 
   context "Without a known worker" do
 
-    describe "#Equal" do
-
-      it "Is equal to another worker if it has the same key attributes" do
-        worker_1 = VW::Worker.new("Joe", "joe@example.com", 100, 200)
-        worker_2 = VW::Worker.new("Joe", "joe@example.com", 100, 200)
-        worker_1.should == worker_2
-      end
-
-      it "Isn't equal to another worker if doesn't share the key attributes" do
-        worker_1 = VW::Worker.new("Joe", "joe@example.com", 100, 200)
-        worker_2 = VW::Worker.new("Joe", "joe@example.com", 100, 202)
-        worker_1.should_not == worker_2
-      end
-
-    end
-
-    describe "#Create" do
-      
+    describe "#Create" do      
       it "Assigns the new worker an id" do
-        @worker = VW::Worker.new("Joe", "joe@example.com")
+        @worker = VW::Worker.new(:name => "Joe", :email => "joe@example.com")
         @worker = @worker.create
         @worker.id.should_not be_nil
       end
 
       it "Creates a worker" do
-        @worker = VW::Worker.new("Joe", "joe@example.com")
+        @worker = VW::Worker.new(:name => "Joe", :email => "joe@example.com")
         @worker = @worker.create
         r_worker = VW::Worker.show(@worker.id)
         r_worker.name.should == @worker.name
@@ -51,7 +34,7 @@ describe VW::Worker do
 
   context "With a known worker" do
     before(:each) do
-      @worker = VW::Worker.new("Joe", "joe@example.com")
+      @worker = VW::Worker.new(:name => "Joe", :email => "joe@example.com")
       @worker = @worker.create
     end
   
@@ -95,14 +78,12 @@ describe VW::Worker do
 
     describe "#Find" do
       it "Finds all workers" do
-        results = VW::Worker.find
+        results = VW::Worker.find()
         results.should be_instance_of(Array)
         results.should include(@worker)
       end
     end
     
   end
-
-
 
 end

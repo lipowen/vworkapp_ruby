@@ -1,21 +1,6 @@
 module VWorkApp
-
-  class Telemetry
-    include AttributeMethods
-    attr_accessor :lat, :lng, :recorded_at, :heading, :speed
-  
-    def initialize (lat, lng, recorded_at, heading, speed)
-      @lat = lat
-      @lng = lng
-      @recorded_at = recorded_at
-      @heading = heading
-      @speed = speed
-    end
-
-    def attributes
-      [:lat, :lng, :recorded_at, :heading, :speed]
-    end
-  
+  class Telemetry < Base
+    hattr_accessor :lat, :lng, :recorded_at, :heading, :speed
+    self.include_root_in_json = false
   end
-
 end

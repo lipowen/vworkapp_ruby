@@ -3,51 +3,22 @@ require "vworkapp_ruby"
 describe VW::Customer do
 
   before(:all) do
-    VW::Customer.base_uri 'api.feat-scales.vworkapp.com/api/2.0'
-    # VW::Customer.base_uri 'api.staging.vworkapp.com/api/2.0'
+    VW::Customer.base_uri 'https://api.staging.vworkapp.com/api/2.0'
     VW.api_key = "AtuogECLCV2R7uT-fkPg"
   end
 
   context "Without a known customer" do
 
-    describe "#Equals" do
-
-      it "Is equal to another customer if it has the same key attributes" do
-        customer_1 = VW::Customer.new("Joe's Baked Goods", 100, 200, 
-          VW::Contact.new("Joe", "Fisher", "415-465-8888", "415-465-9999", "joe@bakary.com"),
-          VW::Contact.new("Bob", "Jones", "021-465-2342", "233-233-1242", "bob.jones@jones.com")
-        )
-        customer_2 = VW::Customer.new("Joe's Baked Goods", 100, 200, 
-          VW::Contact.new("Joe", "Fisher", "415-465-8888", "415-465-9999", "joe@bakary.com"),
-          VW::Contact.new("Bob", "Jones", "021-465-2342", "233-233-1242", "bob.jones@jones.com")
-        )
-        customer_1.should == customer_2
-      end
-
-      it "Isn't equal to another worker if doesn't share the key attributes" do
-        customer_1 = VW::Customer.new("Joe's Baked Goods", 100, 200, 
-          VW::Contact.new("Joe", "Fisher", "415-465-8888", "415-465-9999", "joe@bakary.com"),
-          VW::Contact.new("Bob", "Jones", "021-465-2342", "233-233-1242", "bob.jones@jones.com")
-        )
-        customer_2 = VW::Customer.new("Joe's Baked Goods", 100, 200, 
-          VW::Contact.new("Joe", "Fisher", "415-465-8888", "415-465-9999", "joe@bakary.com"),
-          VW::Contact.new("Jeff", "Jones", "021-465-2342", "233-233-1242", "bob.jones@jones.com")
-        )
-        customer_1.should_not == customer_2
-      end
-
-    end
-
     describe "#Create" do
       
       it "Assigns the new customer an id" do
-        @customer = VW::Customer.new("Joe's Baked Goods")
+        @customer = VW::Customer.new(:name => "Joe's Baked Goods")
         @customer = @customer.create
         @customer.id.should_not be_nil
       end
 
       it "Creates a customer" do
-        @customer = VW::Customer.new("Joe's Baked Goods", nil, "My ID")
+        @customer = VW::Customer.new(:name => "Joe's Baked Goods", :third_party_id => "My ID")
         @customer = @customer.create
 
         r_cust = VW::Customer.show(@customer.id)
@@ -56,15 +27,27 @@ describe VW::Customer do
       end
 
       it "Creates a customer with a billing and delivery contact" do
-        delivery_contact = VW::Contact.new("Joe", "Fisher", "415-465-8888", "415-465-9999", "joe@bakary.com")
-        billing_contact = VW::Contact.new("Felix", "Smith")
-        @customer = VW::Customer.new("Joe's Baked Goods", nil, "My ID", delivery_contact, billing_contact)
+        @customer = VW::Customer.new(
+          :name => "Joe's Baked Goods", 
+          :third_party_id => "My ID", 
+          :delivery_contact => {
+            :first_name => "Joe",
+            :last_name => "Fisher",
+            :phone => "415-465-8888",
+            :mobile => "415-465-9999",
+            :email => "joe@bakary.com"
+          },
+          :billing_contact => {
+            :first_name => "Felix", 
+            :last_name => "Smith"
+          }
+        )
         @customer = @customer.create
       
         r_cust = VW::Customer.show(@customer.id)
         
-        r_cust.delivery_contact.should == delivery_contact
-        r_cust.billing_contact.should == billing_contact
+        r_cust.delivery_contact.should == @customer.delivery_contact
+        r_cust.billing_contact.should == @customer.billing_contact
       end
 
       it "Creates a customer with a contact location" do
@@ -87,7 +70,7 @@ describe VW::Customer do
 
   context "With a known customer" do
     before(:each) do
-      @customer = VW::Customer.new("Joe's Baked Goods")
+      @customer = VW::Customer.new(:name => "Joe's Baked Goods")
       @customer = @customer.create
     end
   
@@ -118,9 +101,9 @@ describe VW::Customer do
         r_cust.third_party_id.should == "My Other ID"
       end
 
-      it "Updates a customers site and billing contacts" do
-        delivery_contact = VW::Contact.new("Joe", "Fisher", "415-465-8888", "415-465-9999", "joe@bakary.com")
-        billing_contact = VW::Contact.new("Felix", "Smith")
+      it "Updates a customers delivery and billing contacts" do
+        delivery_contact = VW::Contact.new(:first_name => "Joe", :last_name => "Fisher", :phone => "415-465-8888", :mobile => "415-465-9999", :email => "joe@bakary.com")
+        billing_contact = VW::Contact.new(:first_name => "Felix", :last_name => "Smith")
         @customer.delivery_contact = delivery_contact
         @customer.billing_contact = billing_contact
         @customer.update
@@ -131,7 +114,7 @@ describe VW::Customer do
       end
 
     end
-      
+
     describe "#Delete" do
       it "Deletes the customer" do
         @customer.delete
@@ -139,7 +122,7 @@ describe VW::Customer do
         r_customer.should be_nil
       end
     end
-      
+
     describe "#Find" do
       it "Finds all customers" do
         results = VW::Customer.find

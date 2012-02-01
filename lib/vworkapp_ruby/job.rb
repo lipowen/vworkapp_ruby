@@ -1,35 +1,15 @@
 require 'gcoder'
 
 module VWorkApp
-
   class Job < Resource
-    attr_accessor :id, :customer_name, :template_name, :planned_duration, :steps, :custom_fields, :third_party_id,
-                  :worker_id, :planned_start_at
+    hattr_accessor :id, :customer_name, :template_name, :planned_duration, {:steps => Array(VWorkApp::Step)}, :published_at,
+                   {:custom_fields => Array(VWorkApp::CustomField)}, :third_party_id, :worker_id, :planned_start_at, :customer_id
 
-    # Readonly.
-    attr_reader :actual_start_at, :actual_duration, :progress_state, :state
+    hattr_reader :actual_start_at, :actual_duration, :progress_state, :state
     
-    #---------------
-    # Object Methods
-    #---------------
-
-    def initialize(attributes)
-      from_hash(attributes)
-    end
-
-    def attributes
-      [
-        :id, :customer_name, :template_name, :planned_duration, {:steps => Array(VW::Step)}, {:custom_fields => Array(VW::CustomField)}, :third_party_id,
-        :worker_id, :planned_start_at, :actual_start_at, :actual_duration, :progress_state, :state
-      ]
-    end
-
-    def to_hash
-      { :job => super.to_hash }
-    end
-    
-    def is_new?
-      self.id == nil
+    def customer
+      return nil if @customer_id.nil?
+      @customer ||= Customer.show(@customer_id)
     end
 
     def worker
@@ -37,46 +17,23 @@ module VWorkApp
       @worker ||= Worker.show(@worker_id)
     end
 
+    # XXX Published at also needs to be set. 
+    def planned_start_at=(datetime)
+      self.published_at = datetime
+      @planned_start_at = datetime
+    end
+
+    # XXX Work around for API bug that doesn't accept a nil contact detail. 
+    def to_xml(options = {})
+      except = options[:except] || []
+      except << "custom_fields" unless custom_fields 
+      super(:except => except)
+    end
+    
     def ==(other)
-      attributes_eql?(other, [
-        :id, :third_party_id, :customer_name, :template_name, :planned_duration, :planned_start_at, 
-        :worker_id, :steps, :custom_fields
-      ])
+      attributes_eql?(other, :id, :third_party_id, :customer_name, :template_name, :planned_duration, :planned_start_at, 
+        :worker_id, :steps, :custom_fields)
     end
 
-    #---------------
-    # REST Methods
-    #---------------
-
-    def create
-      perform(:post, "/jobs.xml", {}, self.to_hash) do |res|
-        Job.from_hash(res["job"])
-      end
-    end
-
-    def update(use_third_party_id = false)
-      perform(:put, "/jobs/#{id}.xml", { :use_third_party_id => use_third_party_id }, self.to_hash)
-    end
-
-    def delete(use_third_party_id = false)
-      perform(:delete, "/jobs/#{id}.xml", { :use_third_party_id => use_third_party_id })
-    end
-
-    def self.show(id, use_third_party_id = false)
-      perform(:get, "/jobs/#{id}.xml", :use_third_party_id => use_third_party_id) do |res|
-        Job.from_hash(res["job"])
-      end
-    end
-
-    def self.find(options={})
-      third_party_id = options.delete(:third_party_id)
-      options[:search] = "@third_party_id=#{third_party_id.to_s}" if (third_party_id)
-      options[:api_key] = VWorkApp.api_key
-      
-      raw = get("/jobs.xml", :query => options)
-      raw["jobs"].map { |h| Job.from_hash(h) }
-    end
-                     
   end
-
 end

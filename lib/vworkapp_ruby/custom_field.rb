@@ -1,22 +1,11 @@
 module VWorkApp
-
-  class CustomField
-    include AttributeMethods
-    attr_accessor :name, :value
-
-    def initialize(name, value)
-      @name = name
-      @value = value
-    end
-    
-    def attributes
-      [:name, :value]
-    end
-  
+  class CustomField < Base
+    hattr_accessor :name, :value
+    self.include_root_in_json = false
+      
     def ==(other)
-      attributes_eql?(other, [:name, :value])
+      attributes_eql?(other, :name, :value)
     end
 
   end
-
 end

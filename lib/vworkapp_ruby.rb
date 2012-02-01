@@ -2,7 +2,7 @@ require 'httparty'
 require 'active_support/core_ext/hash'
 require 'active_model'
 
-require 'vworkapp_ruby/base/attribute_methods'
+require 'vworkapp_ruby/base/base'
 require 'vworkapp_ruby/base/resource'
 require 'vworkapp_ruby/base/response_error'
 

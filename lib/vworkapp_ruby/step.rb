@@ -1,22 +1,11 @@
 module VWorkApp
-
-  class Step
-    include AttributeMethods
-    attr_accessor :name, :location, :completed_at
-  
-    def initialize(name, location = nil)
-      @name = name
-      @location = location
-    end
-
-    def attributes
-      [:name, {:location => VW::Location}, :completed_at]
-    end
+  class Step < Base
+    hattr_accessor :name, {:location => VWorkApp::Location}, :completed_at
+    self.include_root_in_json = false
 
     def ==(other)
-      attributes_eql?(other, [:name, :location, :completed_at])
+      attributes_eql?(other, :name, :location, :completed_at)
     end
   
   end
-
 end

@@ -10,80 +10,74 @@ module VWorkApp
     end    
   end
 
-  class Resource
-    # include ActiveModel::Serialization
+  class Resource < Base
+    extend ActiveModel::Naming
+    include ActiveModel::Conversion
+    include ActiveModel::Validations
     include HTTParty
-    include AttributeMethods
 
-    base_uri 'api.vworkapp.com/api/2.0'
-    # http_proxy 'localhost', 8888
+    base_uri 'https://api.vworkapp.com/api/2.0'
+    http_proxy 'localhost', 8888
 
     headers({
       "Content-Type" => "text/xml",
       "User-Agent" => "Ruby.vWorkApp.API"
     })
+
+    # ------------------
+    # Active Model
+    # ------------------
+    
+    def persisted?
+      false
+    end
     
     # ------------------
     # Rest Methods
     # ------------------
     
-    # def create
-    #   perform(:post, "/workers", {}, self.to_hash) do |res|
-    #     self.from_hash(res["worker"])
-    #   end
-    # end
-    # 
-    # def update(use_third_party_id = false)
-    #   perform(:put, "/workers/#{id}.xml", { :use_third_party_id => use_third_party_id }, self.to_hash)
-    # end
-    # 
-    # def delete(use_third_party_id = false)
-    #   perform(:delete, "/workers/#{id}.xml", { :use_third_party_id => use_third_party_id })
-    # end
-    # 
-    # def self.show(id, use_third_party_id = false)
-    #   perform(:get, "/workers/#{id}.xml", :use_third_party_id => use_third_party_id) do |res|
-    #     self.from_hash(res["worker"])
-    #   end
-    # end
-    # 
-    # def self.find
-    #   self.perform(:get, "/workers.xml") do |res|
-    #     res["workers"].map { |h| Worker.from_hash(h) }
-    #   end
-    # end
-
-    # ------------------
-    # ActiveModel Methods
-    # ------------------
-
-    def initialize(attributes)
-      self.attributes = attributes
+    def create
+      perform(:post, "/#{resource_name.pluralize}", {}, self.to_xml) do |res|
+        self.class.new(res[resource_name])
+      end
     end
 
-    # def persisted?
-    #   @persisted
-    # end
-
-    # def attributes
-    # end
-    # 
-    # def attributes=
-    # end
-    # 
-    # def self.columns
-    #   raise "Yo. Implement me!"
-    # end
+    def update(options = {})
+      perform(:put, "/#{resource_name.pluralize}/#{id}.xml", options, self.to_xml)
+    end
+    
+    def delete(options = {})
+      perform(:delete, "/#{resource_name.pluralize}/#{id}.xml", options)
+    end
+    
+    def self.show(id, options = {})
+      perform(:get, "/#{resource_name.pluralize}/#{id}.xml", options) do |res|
+        self.new(res[resource_name])
+      end
+    end
+    
+    def self.find(options = {})
+      self.perform(:get, "/#{resource_name.pluralize}.xml", options) do |res|
+        res[resource_name.pluralize].map { |h| self.new(h) }
+      end
+    end
+        
+    # ------------------
+    # Misc Methods
+    # ------------------
+    
+    def self.resource_name
+      @resource_name ||= ActiveSupport::Inflector.demodulize(self).underscore
+    end
+    def resource_name
+      self.class.resource_name
+    end
 
     def self.perform(action, url, query = {}, body = nil)
       options = {}
       options[:query] = { :api_key => VWorkApp.api_key }.merge(query)
 
-      if body 
-        root = body.keys.first
-        body_str = body[root].to_xml(:root => root)
-        options[:body] = body_str 
-      end
+      options[:body] = body
       
       raw = self.send(action, url, options)
             
@@ -96,7 +90,6 @@ module VWorkApp
         bad_response(raw.response)
       end
     end
-    
     def perform(action, url, query = {}, body = nil, &block)
       self.class.perform(action, url, query, body, &block)
     end
