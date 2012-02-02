@@ -60,6 +60,8 @@ Full documentation on the API can be found [here](http://api.vworkapp.com/api/).
 
 - Base classes could be refactored out into their own gem and made a little more generic.
 
+- A couple of specs intermittently fail because non-determinate order of to_xml. Needs a fix.
+
 ## License
 
 This API wrapper is published under the MIT License.

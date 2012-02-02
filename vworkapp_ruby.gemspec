@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = ">= 1.3.6"
 
-  s.add_dependency "active_model"
+  s.add_dependency "activemodel"
   s.add_dependency "httparty"
   s.add_dependency "gcoder"
 
