@@ -99,6 +99,14 @@ describe VW::Base do
     end
   end
 
+  describe "#Valdiations" do
+    it "Has error(s) if required fields are missing" do
+      @job = B1.new
+      @job.valid?.should be_false
+      @job.errors.keys.should == [:a]
+    end
+  end
+
   describe "Serialization" do
 
     # XXX fails intermittently because of hash ordering.
@@ -156,6 +164,8 @@ end
 class B1 < VW::Base
   hattr_accessor :a, :b, {:c => B2}, {:es => Array(B2)}
   hattr_reader :d
+
+  validates_presence_of :a
   
   def ==(other)
     attributes_eql?(other, :a, :b, :c, :es)

@@ -17,7 +17,7 @@ module VWorkApp
     include HTTParty
 
     base_uri 'https://api.vworkapp.com/api/2.0'
-    http_proxy 'localhost', 8888
+    # http_proxy 'localhost', 8888
 
     headers({
       "Content-Type" => "text/xml",
@@ -37,12 +37,14 @@ module VWorkApp
     # ------------------
     
     def create
+      validate_and_raise
       perform(:post, "/#{resource_name.pluralize}", {}, self.to_xml) do |res|
         self.class.new(res[resource_name])
       end
     end
 
     def update(options = {})
+      validate_and_raise
       perform(:put, "/#{resource_name.pluralize}/#{id}.xml", options, self.to_xml)
     end
     
@@ -65,7 +67,7 @@ module VWorkApp
     # ------------------
     # Misc Methods
     # ------------------
-    
+        
     def self.resource_name
       @resource_name ||= ActiveSupport::Inflector.demodulize(self).underscore
     end
@@ -80,22 +82,22 @@ module VWorkApp
       options[:body] = body
       
       raw = self.send(action, url, options)
-            
+
       case raw.response
       when Net::HTTPOK, Net::HTTPCreated
         yield(raw) if block_given?
       when Net::HTTPNotFound
-         nil
+        nil
       else
-        bad_response(raw.response)
+        bad_response(raw)
       end
     end
     def perform(action, url, query = {}, body = nil, &block)
       self.class.perform(action, url, query, body, &block)
     end
 
-    def self.bad_response(response)
-      raise "#{response.code} - #{response.msg}: #{response.body}"
+    def self.bad_response(raw)
+      raise ResponseError.new(raw)
     end
     
   end

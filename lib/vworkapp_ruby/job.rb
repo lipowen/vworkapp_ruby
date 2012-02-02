@@ -6,6 +6,16 @@ module VWorkApp
                    {:custom_fields => Array(VWorkApp::CustomField)}, :third_party_id, :worker_id, :planned_start_at, :customer_id
 
     hattr_reader :actual_start_at, :actual_duration, :progress_state, :state
+
+    validates_presence_of :template_name, :planned_duration, :steps
+    validate :customer_validation
+    
+    def customer_validation
+      return true if @customer_id || @customer_name
+      error_str = "- Either customer_name OR customer_id must be present"
+      self.errors.add :customer_name, error_str
+      self.errors.add :customer_id, error_str
+    end
     
     def customer
       return nil if @customer_id.nil?
@@ -26,8 +36,9 @@ module VWorkApp
     # XXX Work around for API bug that doesn't accept a nil contact detail. 
     def to_xml(options = {})
       except = options[:except] || []
-      except << "custom_fields" unless custom_fields 
-      except << "customer_id" unless customer_id 
+      except << "custom_fields" unless custom_fields
+      except << "customer_id" unless customer_id && customer_name.nil?
+
       super(:except => except)
     end
     

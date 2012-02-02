@@ -102,6 +102,22 @@ describe VW::Job do
         r_job.actual_start_at == actual_start_at
         r_job.planned_start_at.should == planned_start_at
       end
+
+      it "Has should raise an exception if required fields are missing" do
+        @job = VW::Job.new
+        lambda { @job.create }.should raise_error
+        @job.errors.keys.should == [:template_name, :planned_duration, :steps, :customer_name, :customer_id]
+      end
+
+      it "Has errors if the server return an error" do
+        @job = VW::Job.new(:customer_name => "Joe", :template_name => "Std Delivery", :planned_duration => 60, :worker_id => -1, 
+          :steps => [
+            {:name  => "Start", :location => {:formatted_address => "880 Harrison St", :lat => 37.779536, :lng => -122.401503}},
+            {:name  => "End",   :location => {:formatted_address => "Other Street", :lat => 38.779536, :lng => -123.401503}},
+          ])
+        
+        lambda { @job.create }.should raise_error(VW::ResponseError)
+      end
       
     end
 

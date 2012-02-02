@@ -4,6 +4,7 @@ module VWorkApp
   class Base
     include ActiveModel::Serializers::JSON
     include ActiveModel::Serializers::Xml
+    include ActiveModel::Validations
 
     def initialize(attributes = {})
       self.attributes = attributes
@@ -84,6 +85,10 @@ module VWorkApp
     # -----------------
     # Misc Methods
     # -----------------
+
+    def validate_and_raise
+      raise Exception.new(self.errors.full_messages.join("\n")) unless valid?
+    end
 
     def attributes_eql?(other, *test_attrs)
       test_attrs.each do |attribute|
