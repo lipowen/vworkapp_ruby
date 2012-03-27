@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["vWorkApp Inc.", "Aish Fenton"]
   s.email       = ["info@vworkapp.com"]
-  s.homepage    = "http://developer.vworkapp.com"
+  s.homepage    = "http://api.vworkapp.com"
   s.summary     = %q{A ruby wrapper for vWorkApp's API}
   s.description = %q{A ruby wrapper for vWorkApp's API}
 
