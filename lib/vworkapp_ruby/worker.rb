@@ -1,6 +1,6 @@
 module VWorkApp
   class Worker < Resource
-    hattr_accessor :id, :name, :email, :third_party_id
+    hattr_accessor :id, :name, :email, :third_party_id, :latest_telemetry
     hattr_reader :latest_telemetry => VWorkApp::Telemetry
 
     def ==(other)
