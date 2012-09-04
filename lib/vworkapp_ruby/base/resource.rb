@@ -9,7 +9,7 @@ module VWorkApp
       @api_key
     end
 
-    @api_host = "api.vworkapp.com"
+    @api_host = "https://api.vworkapp.com"
     def api_host=(host)
       @api_host = host
     end
@@ -24,7 +24,7 @@ module VWorkApp
     include ActiveModel::Validations
     include HTTParty
 
-    base_uri "https://#{VWorkApp.api_host}/api/2.0"
+    base_uri "#{VWorkApp.api_host}/api/2.0"
     # http_proxy 'localhost', 8888
 
     headers({
