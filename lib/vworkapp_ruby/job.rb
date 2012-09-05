@@ -3,7 +3,7 @@ require 'gcoder'
 module VWorkApp
   class Job < Resource
     hattr_accessor :id, :customer_name, :template_name, :planned_duration, {:steps => Array(VWorkApp::Step)}, :published_at,
-                   {:custom_fields => Array(VWorkApp::CustomField)}, :third_party_id, :worker_id, :planned_start_at, :customer_id
+                   {:custom_fields => Array(VWorkApp::CustomField)}, :third_party_id, :worker_id, :planned_start_at, :customer_id, :confirmation
 
     hattr_reader :actual_start_at, :actual_duration, :progress_state, :state
 
@@ -44,7 +44,7 @@ module VWorkApp
     
     def ==(other)
       attributes_eql?(other, :id, :third_party_id, :customer_name, :template_name, :planned_duration, :planned_start_at, 
-        :worker_id, :steps, :custom_fields)
+        :worker_id, :steps, :custom_fields, :confirmation)
     end
 
   end
