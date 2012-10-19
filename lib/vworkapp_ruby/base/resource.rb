@@ -53,7 +53,7 @@ module VWorkApp
 
     def update(options = {})
       validate_and_raise
-      perform(:put, "/#{resource_name.pluralize}/#{id}.xml", options, self.to_xml(:except => [:id]))
+      perform(:put, "/#{resource_name.pluralize}/#{id}.xml", options, self.to_xml)
     end
     
     def delete(options = {})
