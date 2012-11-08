@@ -1,10 +1,10 @@
 Gem::Specification.new do |s|
   s.name        = "vworkapp_ruby"
-  s.version     = "0.7.3"
+  s.version     = "0.8"
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["vWorkApp Inc.", "Aish Fenton"]
+  s.authors     = ["vWorkApp Inc.", "Jonathan Hoskin"]
   s.email       = ["info@vworkapp.com"]
-  s.homepage    = "http://api.vworkapp.com"
+  s.homepage    = "https://api.vworkapp.com"
   s.summary     = %q{A ruby wrapper for vWorkApp's API}
   s.description = %q{A ruby wrapper for vWorkApp's API}
 
