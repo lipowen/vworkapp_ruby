@@ -26,13 +26,18 @@ You can create a job in vWorkApp:
       :planned_duration => 10 * MIN,
       :steps => [
         {:name => "Start", :location => {:formatted_address => "880 Harrison St, SF, USA", :lat => 37.779536, :lng => -122.401503}},
-        {:name => "End", :location => VW::Location.from_address("201 1st Street, SF", :us).attributes}
+        {:name => "End", :location => {:formatted_address => "Broadway, San Francisco, CA, USA", :lat => 37.7959169, :lng => -122.4217661}}
       ],
       :custom_fields => [
         :name => "Note", :value => "Hi There!"
       ]
     )
-    job.create
+    new_job = job.create
+    puts "Created job ID: #{new_job.id}"
+
+Find a job:
+
+    job = VW::Job.show(101) # assuming a job with this ID exists already
 
 Search for jobs:
 
@@ -42,12 +47,12 @@ Search for jobs:
 Update jobs:
 
     job = VW::Job.find(101) # assuming a job with this ID exists already
-    job.steps.first.location = VW::Location.from_address("101 1st Street, SF", :us)
+    job.steps.first.location = {:formatted_address => "880 Harrison St, SF, USA", :lat => 37.779536, :lng => -122.401503}
     job.update
 
 And delete them:
 
-    job = VW::Job.find(101) # assuming a job with this ID exists already
+    job = VW::Job.show(101) # assuming a job with this ID exists already
     job.delete
 
 Full documentation on the API can be found [here](http://api.vworkapp.com/api/).

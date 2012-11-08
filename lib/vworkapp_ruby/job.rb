@@ -38,6 +38,7 @@ module VWorkApp
       except = options[:except] || []
       except << "custom_fields" unless custom_fields
       except << "customer_id" unless customer_id && customer_name.nil?
+      except << "confirmation" unless confirmation
 
       super(:except => except)
     end
