@@ -7,7 +7,7 @@
 #   && (v.is_a?(Array) || v.is_a?(Hash))
 module MultiXml
 
-  def MultiXml.typecast_xml_value(value)
+  def MultiXml.typecast_xml_value(value, disallowed_types=nil)
     case value
     when Hash
       if value['type'] == 'array'
