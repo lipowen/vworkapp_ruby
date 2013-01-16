@@ -1,5 +1,5 @@
 module VWorkApp
-  class VWorkApp::CustomFieldMobile < Base
+  class CustomFieldMobile < Base
     hattr_accessor :type
 
     def ==(other)
@@ -8,7 +8,7 @@ module VWorkApp
   end
 
   class CustomField < Base
-    hattr_accessor :name, :value, {:mobile => VWorkApp::CustomFieldMobile}
+    hattr_accessor :name, :value, {:mobile => CustomFieldMobile}
     self.include_root_in_json = false
 
     def initialize(attributes = {})
