@@ -19,10 +19,11 @@ module VWorkApp
     base_uri "https://api.vworkapp.com/api/2.0"
     # http_proxy 'localhost', 8888
 
-    headers({
-      "Content-Type" => "text/xml",
-      "User-Agent" => "Ruby.vWorkApp.API"
-    })
+    headers(
+      'Content-Type' => 'text/xml',
+      'User-Agent' => 'Ruby.vWorkApp.API',
+      'Accept-Encoding' => 'gzip,deflate',
+    )
 
     # ------------------
     # Active Model
