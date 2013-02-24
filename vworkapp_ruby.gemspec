@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "vworkapp_ruby"
-  s.version     = "0.9"
+  s.version     = "0.9.1"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["vWorkApp Inc.", "Jonathan Hoskin"]
   s.email       = ["info@vworkapp.com"]
